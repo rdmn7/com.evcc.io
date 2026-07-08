@@ -1,0 +1,9 @@
+{
+  "name": "com.evcc.io",
+  "version": "1.0.0",
+  "main": "app.js",
+  "private": true,
+  "dependencies": {
+    "homey": "^3.0.0"
+  }
+}

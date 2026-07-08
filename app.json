@@ -1,0 +1,688 @@
+{
+  "id": "com.evcc.io",
+  "version": "1.0.5",
+  "compatibility": ">=12.0.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "brandColor": "#0FDD42",
+  "name": {
+    "en": "evcc"
+  },
+  "description": {
+    "en": "Control your evcc solar charging instance from Homey"
+  },
+  "category": [
+    "energy"
+  ],
+  "tags": {
+    "en": [
+      "evcc",
+      "ev",
+      "charging",
+      "solar",
+      "car",
+      "wallbox",
+      "carport"
+    ]
+  },
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "evcc Homey App"
+  },
+  "bugs": {
+    "url": "https://github.com/evcc-io/evcc/issues"
+  },
+  "homepage": "https://evcc.io",
+  "source": "https://github.com/evcc-io/evcc",
+  "support": "https://github.com/evcc-io/evcc/discussions",
+  "capabilities": {
+    "evcc_charge_mode": {
+      "type": "enum",
+      "title": {
+        "en": "Charging mode"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "off",
+          "title": {
+            "en": "Off"
+          }
+        },
+        {
+          "id": "pv",
+          "title": {
+            "en": "Solar only"
+          }
+        },
+        {
+          "id": "minpv",
+          "title": {
+            "en": "Min + Solar"
+          }
+        },
+        {
+          "id": "now",
+          "title": {
+            "en": "Fast"
+          }
+        }
+      ]
+    },
+    "evcc_target_soc": {
+      "type": "number",
+      "title": {
+        "en": "Target charge limit"
+      },
+      "units": {
+        "en": "%"
+      },
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "decimals": 0,
+      "getable": true,
+      "setable": true,
+      "uiComponent": "slider"
+    },
+    "evcc_connected": {
+      "type": "boolean",
+      "title": {
+        "en": "Vehicle connected"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/evcc_connected.svg"
+    },
+    "evcc_charging": {
+      "type": "boolean",
+      "title": {
+        "en": "Charging"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/evcc_charging.svg"
+    },
+    "evcc_vehicle_range": {
+      "type": "number",
+      "title": {
+        "en": "Vehicle range"
+      },
+      "units": {
+        "en": "km"
+      },
+      "decimals": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/evcc_vehicle_range.svg"
+    }
+  },
+  "drivers": [
+    {
+      "id": "loadpoint",
+      "name": {
+        "en": "Charging point"
+      },
+      "class": "evcharger",
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "capabilities": [
+        "evcc_charge_mode",
+        "evcc_target_soc",
+        "measure_battery",
+        "measure_power",
+        "meter_power",
+        "evcc_connected",
+        "evcc_charging",
+        "evcc_vehicle_range"
+      ],
+      "capabilitiesOptions": {
+        "measure_power": {
+          "title": {
+            "en": "Charging power"
+          }
+        },
+        "meter_power": {
+          "title": {
+            "en": "Session energy"
+          }
+        },
+        "measure_battery": {
+          "title": {
+            "en": "Vehicle battery"
+          }
+        }
+      },
+      "energy": {
+        "batteries": [
+          "OTHER"
+        ]
+      },
+      "images": {
+        "small": "/drivers/loadpoint/assets/images/small.png",
+        "large": "/drivers/loadpoint/assets/images/large.png",
+        "xlarge": "/drivers/loadpoint/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "connect",
+          "navigation": {
+            "next": "list_devices"
+          }
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "settings": [
+        {
+          "id": "host",
+          "type": "text",
+          "label": {
+            "en": "evcc URL"
+          },
+          "value": "http://",
+          "hint": {
+            "en": "Base URL of your evcc instance, e.g. http://192.168.1.50:7070"
+          }
+        },
+        {
+          "id": "password",
+          "type": "password",
+          "label": {
+            "en": "Password (optional)"
+          },
+          "value": "",
+          "hint": {
+            "en": "Only needed if your evcc instance has a login password configured"
+          }
+        },
+        {
+          "id": "pollInterval",
+          "type": "number",
+          "label": {
+            "en": "Update interval (seconds)"
+          },
+          "value": 10,
+          "min": 5,
+          "max": 300,
+          "hint": {
+            "en": "How often Homey polls evcc for updates"
+          }
+        }
+      ]
+    },
+    {
+      "id": "site",
+      "name": {
+        "en": "evcc site"
+      },
+      "class": "other",
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "capabilities": [
+        "measure_power.pv",
+        "measure_power.grid",
+        "measure_power.battery",
+        "measure_battery.home",
+        "measure_power.home"
+      ],
+      "capabilitiesOptions": {
+        "measure_power.pv": {
+          "title": {
+            "en": "Solar production"
+          }
+        },
+        "measure_power.grid": {
+          "title": {
+            "en": "Grid power"
+          }
+        },
+        "measure_power.battery": {
+          "title": {
+            "en": "Home battery power"
+          }
+        },
+        "measure_battery.home": {
+          "title": {
+            "en": "Home battery level"
+          }
+        },
+        "measure_power.home": {
+          "title": {
+            "en": "Home consumption"
+          }
+        }
+      },
+      "energy": {
+        "batteries": [
+          "OTHER"
+        ]
+      },
+      "images": {
+        "small": "/drivers/site/assets/images/small.png",
+        "large": "/drivers/site/assets/images/large.png",
+        "xlarge": "/drivers/site/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "connect",
+          "navigation": {
+            "next": "list_devices"
+          }
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "settings": [
+        {
+          "id": "host",
+          "type": "text",
+          "label": {
+            "en": "evcc URL"
+          },
+          "value": "http://",
+          "hint": {
+            "en": "Base URL of your evcc instance, e.g. http://192.168.1.50:7070"
+          }
+        },
+        {
+          "id": "password",
+          "type": "password",
+          "label": {
+            "en": "Password (optional)"
+          },
+          "value": ""
+        },
+        {
+          "id": "pollInterval",
+          "type": "number",
+          "label": {
+            "en": "Update interval (seconds)"
+          },
+          "value": 10,
+          "min": 5,
+          "max": 300
+        }
+      ]
+    }
+  ],
+  "flow": {
+    "triggers": [
+      {
+        "id": "charge_mode_changed",
+        "title": {
+          "en": "Charging mode changed"
+        },
+        "titleFormatted": {
+          "en": "Charging mode changed to [[mode]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=loadpoint"
+          },
+          {
+            "name": "mode",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "off",
+                "label": {
+                  "en": "Off"
+                }
+              },
+              {
+                "id": "pv",
+                "label": {
+                  "en": "Solar only"
+                }
+              },
+              {
+                "id": "minpv",
+                "label": {
+                  "en": "Min + Solar"
+                }
+              },
+              {
+                "id": "now",
+                "label": {
+                  "en": "Fast"
+                }
+              }
+            ]
+          }
+        ],
+        "tokens": [
+          {
+            "name": "mode",
+            "type": "string",
+            "title": {
+              "en": "Mode"
+            }
+          }
+        ]
+      },
+      {
+        "id": "vehicle_connected",
+        "title": {
+          "en": "Vehicle connected"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=loadpoint"
+          }
+        ]
+      },
+      {
+        "id": "vehicle_disconnected",
+        "title": {
+          "en": "Vehicle disconnected"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=loadpoint"
+          }
+        ]
+      },
+      {
+        "id": "charging_started",
+        "title": {
+          "en": "Charging started"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=loadpoint"
+          }
+        ]
+      },
+      {
+        "id": "charging_stopped",
+        "title": {
+          "en": "Charging stopped"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=loadpoint"
+          }
+        ]
+      },
+      {
+        "id": "target_soc_reached",
+        "title": {
+          "en": "Target charge limit reached"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=loadpoint"
+          }
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "id": "charge_mode_is",
+        "title": {
+          "en": "Charging mode !{{is|is not}}"
+        },
+        "titleFormatted": {
+          "en": "Charging mode !{{is|is not}} [[mode]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=loadpoint"
+          },
+          {
+            "name": "mode",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "off",
+                "label": {
+                  "en": "Off"
+                }
+              },
+              {
+                "id": "pv",
+                "label": {
+                  "en": "Solar only"
+                }
+              },
+              {
+                "id": "minpv",
+                "label": {
+                  "en": "Min + Solar"
+                }
+              },
+              {
+                "id": "now",
+                "label": {
+                  "en": "Fast"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "is_charging",
+        "title": {
+          "en": "Is !{{charging|not charging}}"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=loadpoint"
+          }
+        ]
+      },
+      {
+        "id": "is_connected",
+        "title": {
+          "en": "Vehicle !{{is|is not}} connected"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=loadpoint"
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "set_charge_mode",
+        "title": {
+          "en": "Set charging mode"
+        },
+        "titleFormatted": {
+          "en": "Set charging mode to [[mode]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=loadpoint"
+          },
+          {
+            "name": "mode",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "off",
+                "label": {
+                  "en": "Off"
+                }
+              },
+              {
+                "id": "pv",
+                "label": {
+                  "en": "Solar only"
+                }
+              },
+              {
+                "id": "minpv",
+                "label": {
+                  "en": "Min + Solar"
+                }
+              },
+              {
+                "id": "now",
+                "label": {
+                  "en": "Fast"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "set_target_soc",
+        "title": {
+          "en": "Set target charge limit"
+        },
+        "titleFormatted": {
+          "en": "Set target charge limit to [[soc]] %"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=loadpoint"
+          },
+          {
+            "name": "soc",
+            "type": "number",
+            "title": {
+              "en": "Limit (%)"
+            },
+            "min": 0,
+            "max": 100,
+            "step": 5
+          }
+        ]
+      },
+      {
+        "id": "set_min_current",
+        "title": {
+          "en": "Set minimum charge current"
+        },
+        "titleFormatted": {
+          "en": "Set minimum charge current to [[amps]] A"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=loadpoint"
+          },
+          {
+            "name": "amps",
+            "type": "number",
+            "title": {
+              "en": "Amps"
+            },
+            "min": 6,
+            "max": 32,
+            "step": 1
+          }
+        ]
+      },
+      {
+        "id": "set_max_current",
+        "title": {
+          "en": "Set maximum charge current"
+        },
+        "titleFormatted": {
+          "en": "Set maximum charge current to [[amps]] A"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=loadpoint"
+          },
+          {
+            "name": "amps",
+            "type": "number",
+            "title": {
+              "en": "Amps"
+            },
+            "min": 6,
+            "max": 32,
+            "step": 1
+          }
+        ]
+      }
+    ]
+  },
+  "api": {
+    "getLoadpointState": {
+      "method": "GET",
+      "path": "/loadpoints/:id"
+    },
+    "setLoadpointMode": {
+      "method": "POST",
+      "path": "/loadpoints/:id/mode"
+    },
+    "setLoadpointTargetSoc": {
+      "method": "POST",
+      "path": "/loadpoints/:id/target-soc"
+    }
+  }
+}

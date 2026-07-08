@@ -1,0 +1,12 @@
+{
+  "name": { "en": "evcc charging point" },
+  "height": 220,
+  "settings": [
+    {
+      "id": "device",
+      "type": "device",
+      "filter": "driver_id=loadpoint",
+      "title": { "en": "Charging point" }
+    }
+  ]
+}

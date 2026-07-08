@@ -1,0 +1,4 @@
+node_modules/
+.homeybuild/
+*.log
+.DS_Store
