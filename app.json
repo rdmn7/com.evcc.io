@@ -1,6 +1,6 @@
 {
   "id": "com.evcc.io",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "compatibility": ">=12.0.0",
   "sdk": 3,
   "platforms": [
@@ -11,7 +11,7 @@
     "en": "evcc"
   },
   "description": {
-    "en": "Control your evcc solar charging instance from Homey"
+    "en": "Smarter solar EV charging."
   },
   "category": [
     "energy"
@@ -173,6 +173,8 @@
         }
       },
       "energy": {
+        "evCharger": true,
+        "meterPowerImportedCapability": "meter_power",
         "batteries": [
           "OTHER"
         ]
@@ -286,9 +288,7 @@
         }
       },
       "energy": {
-        "batteries": [
-          "OTHER"
-        ]
+        "homeBattery": true
       },
       "images": {
         "small": "/drivers/site/assets/images/small.png",
