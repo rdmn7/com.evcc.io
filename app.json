@@ -787,6 +787,115 @@
             "filter": "driver_id=loadpoint"
           }
         ]
+      },
+      {
+        "id": "battery_mode_changed",
+        "title": {
+          "en": "Battery mode changed"
+        },
+        "titleFormatted": {
+          "en": "Battery mode changed to [[mode]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=battery"
+          },
+          {
+            "name": "mode",
+            "type": "dropdown",
+            "title": {
+              "en": "Mode"
+            },
+            "values": [
+              {
+                "id": "unknown",
+                "label": {
+                  "en": "Auto"
+                }
+              },
+              {
+                "id": "normal",
+                "label": {
+                  "en": "Normal"
+                }
+              },
+              {
+                "id": "hold",
+                "label": {
+                  "en": "Hold"
+                }
+              },
+              {
+                "id": "charge",
+                "label": {
+                  "en": "Charge"
+                }
+              }
+            ]
+          }
+        ],
+        "tokens": [
+          {
+            "name": "mode",
+            "type": "string",
+            "title": {
+              "en": "Mode"
+            }
+          }
+        ]
+      },
+      {
+        "id": "battery_discharge_control_changed",
+        "title": {
+          "en": "Battery discharge control changed"
+        },
+        "titleFormatted": {
+          "en": "Battery discharge is [[enabled]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=battery"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "enabled",
+            "type": "boolean",
+            "title": {
+              "en": "Allowed"
+            }
+          }
+        ]
+      },
+      {
+        "id": "battery_started_charging",
+        "title": {
+          "en": "Home battery started charging"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=battery"
+          }
+        ]
+      },
+      {
+        "id": "battery_started_discharging",
+        "title": {
+          "en": "Home battery started discharging"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=battery"
+          }
+        ]
       }
     ],
     "conditions": [
@@ -859,6 +968,94 @@
             "name": "device",
             "type": "device",
             "filter": "driver_id=loadpoint"
+          }
+        ]
+      },
+      {
+        "id": "battery_mode_is",
+        "title": {
+          "en": "Battery mode !{{is|is not}}"
+        },
+        "titleFormatted": {
+          "en": "Battery mode !{{is|is not}} [[mode]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=battery"
+          },
+          {
+            "name": "mode",
+            "type": "dropdown",
+            "title": {
+              "en": "Mode"
+            },
+            "values": [
+              {
+                "id": "unknown",
+                "label": {
+                  "en": "Auto"
+                }
+              },
+              {
+                "id": "normal",
+                "label": {
+                  "en": "Normal"
+                }
+              },
+              {
+                "id": "hold",
+                "label": {
+                  "en": "Hold"
+                }
+              },
+              {
+                "id": "charge",
+                "label": {
+                  "en": "Charge"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "battery_discharge_allowed",
+        "title": {
+          "en": "Battery discharge !{{is|is not}} allowed"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=battery"
+          }
+        ]
+      },
+      {
+        "id": "battery_is_charging",
+        "title": {
+          "en": "Home battery !{{is|is not}} charging"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=battery"
+          }
+        ]
+      },
+      {
+        "id": "battery_is_discharging",
+        "title": {
+          "en": "Home battery !{{is|is not}} discharging"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=battery"
           }
         ]
       }
@@ -985,6 +1182,221 @@
             "min": 6,
             "max": 32,
             "step": 1
+          }
+        ]
+      },
+      {
+        "id": "set_battery_mode",
+        "title": {
+          "en": "Set battery mode"
+        },
+        "titleFormatted": {
+          "en": "Set battery mode to [[mode]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=battery"
+          },
+          {
+            "name": "mode",
+            "type": "dropdown",
+            "title": {
+              "en": "Mode"
+            },
+            "values": [
+              {
+                "id": "unknown",
+                "label": {
+                  "en": "Auto"
+                }
+              },
+              {
+                "id": "normal",
+                "label": {
+                  "en": "Normal"
+                }
+              },
+              {
+                "id": "hold",
+                "label": {
+                  "en": "Hold"
+                }
+              },
+              {
+                "id": "charge",
+                "label": {
+                  "en": "Charge"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "set_battery_discharge_control",
+        "title": {
+          "en": "Set battery discharge control"
+        },
+        "titleFormatted": {
+          "en": "Set battery discharge allowed to [[enabled]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=battery"
+          },
+          {
+            "name": "enabled",
+            "type": "checkbox",
+            "title": {
+              "en": "Allow discharge"
+            }
+          }
+        ]
+      },
+      {
+        "id": "set_battery_buffer_soc",
+        "title": {
+          "en": "Set battery buffer SoC"
+        },
+        "titleFormatted": {
+          "en": "Set battery buffer SoC to [[soc]] %"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=battery"
+          },
+          {
+            "name": "soc",
+            "type": "number",
+            "title": {
+              "en": "SoC (%)"
+            },
+            "min": 0,
+            "max": 100,
+            "step": 5
+          }
+        ]
+      },
+      {
+        "id": "set_battery_buffer_start_soc",
+        "title": {
+          "en": "Set buffer start SoC"
+        },
+        "titleFormatted": {
+          "en": "Set buffer start SoC to [[soc]] %"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=battery"
+          },
+          {
+            "name": "soc",
+            "type": "number",
+            "title": {
+              "en": "SoC (%)"
+            },
+            "min": 0,
+            "max": 100,
+            "step": 5
+          }
+        ]
+      },
+      {
+        "id": "set_battery_priority_soc",
+        "title": {
+          "en": "Set battery priority SoC"
+        },
+        "titleFormatted": {
+          "en": "Set battery priority SoC to [[soc]] %"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=battery"
+          },
+          {
+            "name": "soc",
+            "type": "number",
+            "title": {
+              "en": "SoC (%)"
+            },
+            "min": 0,
+            "max": 100,
+            "step": 5
+          }
+        ]
+      },
+      {
+        "id": "set_grid_residual_power",
+        "title": {
+          "en": "Set grid residual power"
+        },
+        "titleFormatted": {
+          "en": "Set grid residual power to [[power]] W"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=battery"
+          },
+          {
+            "name": "power",
+            "type": "number",
+            "title": {
+              "en": "Power (W)"
+            },
+            "min": -5000,
+            "max": 5000,
+            "step": 100
+          }
+        ]
+      },
+      {
+        "id": "set_battery_grid_charge_limit",
+        "title": {
+          "en": "Set battery grid charge limit"
+        },
+        "titleFormatted": {
+          "en": "Set battery grid charge limit to [[cost]] €/kWh"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=battery"
+          },
+          {
+            "name": "cost",
+            "type": "number",
+            "title": {
+              "en": "Cost (€/kWh)"
+            },
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          }
+        ]
+      },
+      {
+        "id": "reset_battery_control",
+        "title": {
+          "en": "Reset external battery control"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=battery"
           }
         ]
       }

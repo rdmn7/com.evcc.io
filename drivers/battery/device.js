@@ -9,6 +9,7 @@ class BatteryDevice extends Homey.Device {
   async onInit() {
     const settings = this.getSettings();
     this._api = new EvccApi({ host: settings.host, password: settings.password });
+    this._prevSite = {};
     this._registerCapabilityListeners();
     await this._poll();
     this._startPolling(settings.pollInterval || 10);
@@ -16,47 +17,35 @@ class BatteryDevice extends Homey.Device {
 
   _registerCapabilityListeners() {
     this.registerCapabilityListener('evcc_battery_discharge_control', async (value) => {
-      await this._api.setBatteryDischargeControl(value);
-      await this._safeSet('evcc_battery_discharge_control', value);
+      await this.setBatteryDischargeControl(value);
     });
 
     this.registerCapabilityListener('evcc_battery_mode', async (value) => {
-      await this._api.setBatteryMode(value);
-      await this._safeSet('evcc_battery_mode', value);
+      await this.setBatteryMode(value);
     });
 
     this.registerCapabilityListener('evcc_battery_buffer_soc', async (value) => {
-      const soc = Math.round(value * 100);
-      await this._api.setBatteryBufferSoc(soc);
-      await this._safeSet('evcc_battery_buffer_soc', value);
+      await this.setBatteryBufferSoc(Math.round(value * 100));
     });
 
     this.registerCapabilityListener('evcc_battery_buffer_start_soc', async (value) => {
-      const soc = Math.round(value * 100);
-      await this._api.setBatteryBufferStartSoc(soc);
-      await this._safeSet('evcc_battery_buffer_start_soc', value);
+      await this.setBatteryBufferStartSoc(Math.round(value * 100));
     });
 
     this.registerCapabilityListener('evcc_battery_priority_soc', async (value) => {
-      const soc = Math.round(value * 100);
-      await this._api.setBatteryPrioritySoc(soc);
-      await this._safeSet('evcc_battery_priority_soc', value);
+      await this.setBatteryPrioritySoc(Math.round(value * 100));
     });
 
     this.registerCapabilityListener('evcc_grid_residual_power', async (value) => {
-      const power = Math.round(value);
-      await this._api.setGridResidualPower(power);
-      await this._safeSet('evcc_grid_residual_power', power);
+      await this.setGridResidualPower(value);
     });
 
     this.registerCapabilityListener('evcc_battery_grid_charge_limit', async (value) => {
-      await this._api.setBatteryGridChargeLimit(value);
-      await this._safeSet('evcc_battery_grid_charge_limit', value);
+      await this.setBatteryGridChargeLimit(value);
     });
 
     this.registerCapabilityListener('evcc_battery_control_reset', async () => {
-      await this._api.resetBatteryMode();
-      await this._poll();
+      await this.resetBatteryControl();
     });
   }
 
@@ -129,11 +118,88 @@ class BatteryDevice extends Homey.Device {
       await this._safeSet('evcc_grid_residual_power', site.gridResidualPower);
       await this._safeSet('evcc_battery_grid_charge_limit', site.batteryGridChargeLimit);
 
+      this._triggerFlowChanges(site);
+
       if (!this.getAvailable()) await this.setAvailable();
+      this._prevSite = site;
     } catch (err) {
       this.error('evcc battery poll error:', err.message);
       await this.setUnavailable(err.message).catch(() => {});
     }
+  }
+
+  _triggerFlowChanges(site) {
+    const prev = this._prevSite || {};
+    const flow = this.homey.flow;
+
+    if (prev.batteryMode !== undefined && prev.batteryMode !== site.batteryMode) {
+      const mode = site.batteryMode || 'unknown';
+      flow.getDeviceTriggerCard('battery_mode_changed')
+        .trigger(this, { mode }, { mode })
+        .catch((err) => this.error(err));
+    }
+
+    if (prev.batteryDischargeControl !== undefined && prev.batteryDischargeControl !== site.batteryDischargeControl) {
+      const enabled = Boolean(site.batteryDischargeControl);
+      flow.getDeviceTriggerCard('battery_discharge_control_changed')
+        .trigger(this, { enabled }, { enabled })
+        .catch((err) => this.error(err));
+    }
+
+    const prevPower = typeof prev.batteryPower === 'number' ? prev.batteryPower : 0;
+    const currentPower = typeof site.batteryPower === 'number' ? site.batteryPower : 0;
+
+    if (prevPower >= 0 && currentPower < 0) {
+      flow.getDeviceTriggerCard('battery_started_charging').trigger(this).catch((err) => this.error(err));
+    }
+
+    if (prevPower <= 0 && currentPower > 0) {
+      flow.getDeviceTriggerCard('battery_started_discharging').trigger(this).catch((err) => this.error(err));
+    }
+  }
+
+  async setBatteryDischargeControl(enabled) {
+    await this._api.setBatteryDischargeControl(Boolean(enabled));
+    await this._safeSet('evcc_battery_discharge_control', Boolean(enabled));
+  }
+
+  async setBatteryMode(mode) {
+    await this._api.setBatteryMode(mode);
+    await this._safeSet('evcc_battery_mode', mode);
+  }
+
+  async setBatteryBufferSoc(soc) {
+    const value = Math.round(soc);
+    await this._api.setBatteryBufferSoc(value);
+    await this._safeSet('evcc_battery_buffer_soc', value / 100);
+  }
+
+  async setBatteryBufferStartSoc(soc) {
+    const value = Math.round(soc);
+    await this._api.setBatteryBufferStartSoc(value);
+    await this._safeSet('evcc_battery_buffer_start_soc', value / 100);
+  }
+
+  async setBatteryPrioritySoc(soc) {
+    const value = Math.round(soc);
+    await this._api.setBatteryPrioritySoc(value);
+    await this._safeSet('evcc_battery_priority_soc', value / 100);
+  }
+
+  async setGridResidualPower(power) {
+    const value = Math.round(power);
+    await this._api.setGridResidualPower(value);
+    await this._safeSet('evcc_grid_residual_power', value);
+  }
+
+  async setBatteryGridChargeLimit(cost) {
+    await this._api.setBatteryGridChargeLimit(cost);
+    await this._safeSet('evcc_battery_grid_charge_limit', cost);
+  }
+
+  async resetBatteryControl() {
+    await this._api.resetBatteryMode();
+    await this._poll();
   }
 
   async onSettings({ newSettings, changedKeys }) {
