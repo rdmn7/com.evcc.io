@@ -1,6 +1,6 @@
 # evcc for Homey
 
-Control your [evcc](https://evcc.io) solar charging instance directly from Homey.
+Connect your [evcc](https://evcc.io) solar charging setup to Homey.
 
 evcc is a free, open-source EV charging controller that optimizes charging
 using solar surplus, dynamic electricity tariffs, and smart automation. It
@@ -15,8 +15,9 @@ control charging as part of your Homey flows and dashboards.
 - **Charging point device**: charge mode (Off / Solar only / Min+Solar / Fast),
   target charge limit, charging power, session energy, vehicle battery level,
   vehicle range, connected/charging status
-- **Site device**: solar production, grid power, home battery power and level,
-  home consumption
+- **Site device**: solar production, grid power, and home consumption
+- **Home battery device**: battery power and level, plus evcc battery control
+  settings when a home battery is configured
 - Flow cards to set charge mode, target SoC, and min/max charging current
 - Flow conditions for charge mode, charging state, and connection state
 - Local polling, no cloud dependency — works entirely on your LAN
@@ -29,14 +30,14 @@ control charging as part of your Homey flows and dashboards.
 
 ## Setup
 
-Add a device, choose "Charging point" or "evcc site", and enter your evcc
+Add a device, choose "Charging point", "evcc site", or "Home battery", and enter your evcc
 instance's URL (e.g. `http://192.168.1.50:7070`) plus the optional password.
 
 ## Links
 
 - evcc project (what this app connects to): https://evcc.io
-- This integration's source: https://github.com/rdmn7/evcc
-- Report an issue with this integration: https://github.com/rdmn7/evcc/issues
+- This integration's source: https://github.com/rdmn7/com.evcc.io
+- Report an issue with this integration: https://github.com/rdmn7/com.evcc.io/issues
 
 This app is a community integration and is not officially affiliated with
 the evcc project.
