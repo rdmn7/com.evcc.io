@@ -24,7 +24,9 @@ class LoadpointDevice extends Homey.Device {
       await this.setChargeMode(value);
     });
     this.registerCapabilityListener('evcc_target_soc', async (value) => {
-      await this.setTargetSoc(value);
+      // Homey's generic percent-slider stores/reports a 0-1 fraction; evcc's API and
+      // our own setTargetSoc() work in whole percent (0-100).
+      await this.setTargetSoc(Math.round(value * 100));
     });
   }
 
@@ -64,17 +66,30 @@ class LoadpointDevice extends Homey.Device {
     await this.setCapabilityValue(capability, value).catch((err) => this.error(`setCapabilityValue(${capability})`, err.message));
   }
 
+  async _clearIfSet(capability) {
+    if (this.getCapabilityValue(capability) === null) return;
+    await this.setCapabilityValue(capability, null).catch((err) => this.error(`setCapabilityValue(${capability})`, err.message));
+  }
+
   async _applyState(lp) {
     const prev = this._prevState;
 
     await this._safeSet('evcc_charge_mode', lp.mode);
-    await this._safeSet('evcc_target_soc', lp.targetSoc);
-    await this._safeSet('measure_battery', lp.vehicleSoc);
+    await this._safeSet('evcc_target_soc', typeof lp.targetSoc === 'number' ? lp.targetSoc / 100 : null);
+    // evcc only has live vehicle telemetry while a car is connected; when
+    // disconnected it reports soc/range as 0 placeholders, not real values,
+    // so show unknown ("-") instead of a stale or fake reading.
+    if (lp.connected) {
+      await this._safeSet('measure_battery', lp.vehicleSoc);
+      await this._safeSet('evcc_vehicle_range', lp.vehicleRange);
+    } else {
+      await this._clearIfSet('measure_battery');
+      await this._clearIfSet('evcc_vehicle_range');
+    }
     await this._safeSet('measure_power', lp.chargePower ?? 0);
     await this._safeSet('meter_power', lp.chargedEnergy ?? 0);
     await this._safeSet('evcc_connected', lp.connected);
     await this._safeSet('evcc_charging', lp.charging);
-    await this._safeSet('evcc_vehicle_range', lp.vehicleRange);
 
     const flow = this.homey.flow;
 
@@ -107,16 +122,16 @@ class LoadpointDevice extends Homey.Device {
     this._prevState = lp;
   }
 
-  /** Called by flow action + widget API */
   async setChargeMode(mode) {
     await this._api.setLoadpointMode(this._loadpointIndex, mode);
     await this._safeSet('evcc_charge_mode', mode);
   }
 
+  /** soc is a whole percent (0-100); the capability itself stores a 0-1 fraction. */
   async setTargetSoc(soc) {
     const vehicleName = this._prevState && this._prevState.vehicleTitle;
     await this._api.setLoadpointLimitSoc(this._loadpointIndex, soc, vehicleName);
-    await this._safeSet('evcc_target_soc', soc);
+    await this._safeSet('evcc_target_soc', soc / 100);
   }
 
   async setMinCurrent(amps) {
@@ -125,21 +140,6 @@ class LoadpointDevice extends Homey.Device {
 
   async setMaxCurrent(amps) {
     await this._api.setLoadpointMaxCurrent(this._loadpointIndex, amps);
-  }
-
-  getWidgetSummary() {
-    return {
-      id: this.getData().id,
-      name: this.getName(),
-      mode: this.getCapabilityValue('evcc_charge_mode'),
-      targetSoc: this.getCapabilityValue('evcc_target_soc'),
-      vehicleSoc: this.getCapabilityValue('measure_battery'),
-      vehicleRange: this.getCapabilityValue('evcc_vehicle_range'),
-      chargePower: this.getCapabilityValue('measure_power'),
-      chargedEnergy: this.getCapabilityValue('meter_power'),
-      connected: this.getCapabilityValue('evcc_connected'),
-      charging: this.getCapabilityValue('evcc_charging'),
-    };
   }
 
   async onSettings({ newSettings, changedKeys }) {

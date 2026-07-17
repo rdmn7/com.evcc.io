@@ -34,10 +34,9 @@ instance's URL (e.g. `http://192.168.1.50:7070`) plus the optional password.
 
 ## Links
 
-- evcc project: https://evcc.io
-- evcc source: https://github.com/evcc-io/evcc
-- Issues: https://github.com/evcc-io/evcc/issues
-- Discussions: https://github.com/evcc-io/evcc/discussions
+- evcc project (what this app connects to): https://evcc.io
+- This integration's source: https://github.com/rdmn7/evcc
+- Report an issue with this integration: https://github.com/rdmn7/evcc/issues
 
 This app is a community integration and is not officially affiliated with
 the evcc project.

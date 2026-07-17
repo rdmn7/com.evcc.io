@@ -29,8 +29,19 @@ class SiteDevice extends Homey.Device {
 
   async _safeSet(capability, value) {
     if (value === null || value === undefined) return;
+    if (!this.hasCapability(capability)) return;
     if (this.getCapabilityValue(capability) === value) return;
     await this.setCapabilityValue(capability, value).catch((err) => this.error(`setCapabilityValue(${capability})`, err.message));
+  }
+
+  /** Adds/removes a capability to match whether evcc actually has that device configured. */
+  async _syncCapability(capability, shouldHave) {
+    const has = this.hasCapability(capability);
+    if (shouldHave && !has) {
+      await this.addCapability(capability).catch((err) => this.error(`addCapability(${capability})`, err.message));
+    } else if (!shouldHave && has) {
+      await this.removeCapability(capability).catch((err) => this.error(`removeCapability(${capability})`, err.message));
+    }
   }
 
   async _poll() {
@@ -38,11 +49,18 @@ class SiteDevice extends Homey.Device {
       const rawState = await this._api.getState();
       const { site } = normalizeState(rawState);
 
-      await this._safeSet('measure_power.pv', site.pvPower ?? 0);
-      await this._safeSet('measure_power.grid', site.gridPower ?? 0);
-      await this._safeSet('measure_power.battery', site.batteryPower ?? 0);
-      await this._safeSet('measure_battery.home', site.batterySoc);
-      await this._safeSet('measure_power.home', site.homePower ?? 0);
+      await this._syncCapability('evcc_solar_power', true);
+      await this._syncCapability('evcc_home_power', true);
+      await this._syncCapability('evcc_grid_power', site.gridConfigured);
+      await this._syncCapability('measure_power.pv', false);
+      await this._syncCapability('measure_power.grid', false);
+      await this._syncCapability('measure_power.home', false);
+      await this._syncCapability('measure_power.battery', false);
+      await this._syncCapability('measure_battery.home', false);
+
+      await this._safeSet('evcc_solar_power', site.pvPower ?? 0);
+      if (site.gridConfigured) await this._safeSet('evcc_grid_power', site.gridPower ?? 0);
+      await this._safeSet('evcc_home_power', site.homePower ?? 0);
 
       if (!this.getAvailable()) await this.setAvailable();
     } catch (err) {

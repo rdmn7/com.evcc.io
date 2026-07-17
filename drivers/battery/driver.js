@@ -5,10 +5,10 @@ const EvccApi = require('../../lib/EvccApi');
 const { normalizeState } = require('../../lib/normalize');
 const slug = require('../../lib/slug');
 
-class SiteDriver extends Homey.Driver {
+class BatteryDriver extends Homey.Driver {
 
   async onInit() {
-    this.log('Site driver initialized');
+    this.log('Battery driver initialized');
   }
 
   async onPair(session) {
@@ -29,7 +29,12 @@ class SiteDriver extends Homey.Driver {
 
       const api = new EvccApi({ host, password });
       if (password) await api.login();
-      await api.getState();
+      const rawState = await api.getState();
+      const { site } = normalizeState(rawState);
+
+      if (!site.batteryConfigured) {
+        throw new Error('No home battery is configured in this evcc instance.');
+      }
 
       this.homey.settings.set('lastHost', host);
       return true;
@@ -41,19 +46,20 @@ class SiteDriver extends Homey.Driver {
       const rawState = await api.getState();
       const { site } = normalizeState(rawState);
 
-      const capabilities = ['evcc_solar_power', 'evcc_home_power'];
-      if (site.gridConfigured) capabilities.push('evcc_grid_power');
+      if (!site.batteryConfigured) {
+        throw new Error('No home battery is configured in this evcc instance.');
+      }
 
       const hostSlug = slug(host);
       return [{
-        name: site.siteTitle || 'evcc',
-        data: { id: `${hostSlug}-site` },
+        name: 'Home battery',
+        data: { id: `${hostSlug}-battery` },
         store: { host, password },
-        capabilities,
         settings: {
           host,
           password: password || '',
           pollInterval: 10,
+          enabled: true,
         },
       }];
     });
@@ -61,4 +67,4 @@ class SiteDriver extends Homey.Driver {
 
 }
 
-module.exports = SiteDriver;
+module.exports = BatteryDriver;
