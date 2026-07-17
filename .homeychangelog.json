@@ -1,0 +1,5 @@
+{
+  "1.0.12": {
+    "en": "Added custom site energy icons, a separate home battery device with controls, updated app metadata links, and cleaned up Homey Energy support."
+  }
+}
