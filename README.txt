@@ -1,3 +1,3 @@
-evcc is a free, open-source EV charging controller that optimizes charging using solar surplus, dynamic electricity tariffs, and smart automation, running on your own hardware on your local network.
+evcc helps optimize EV charging around solar surplus and smart energy use on your local network.
 
-This app connects your Homey to evcc, letting you monitor charging power, session energy, vehicle battery and range, and control charge mode and current limits from Homey flows and dashboards, alongside an overview of your home's solar production, grid power, and battery status.
+This app connects Homey to your local evcc instance to monitor charging power, session energy, vehicle battery level and range, solar production, grid power, home consumption, and optional home battery status. You can control charge mode and target charge limit from the device, use flows for charge mode, target charge limit and charge current limits, and manage home battery controls when evcc has one configured.
